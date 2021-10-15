@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.empresa.entity.FiltroModalidad;
 import com.empresa.entity.Modalidad;
 import com.empresa.service.ModalidadService;
 import com.empresa.util.Constantes;
@@ -48,6 +50,28 @@ public class ModalidadController {
 			e.printStackTrace();
 			salida.put("mensaje", Constantes.MENSAJE_REG_ERROR);
 		}
+		return ResponseEntity.ok(salida);
+	}
+	
+	@GetMapping("/porIdModalidadSedeIdDeporteConJson")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> listaPorIdModaSedeIdDeporteConParametros(
+							@RequestBody FiltroModalidad moda) {
+		
+		Map<String, Object> salida = new HashMap<String, Object>();
+		try {
+			moda.setSede("%"+moda.getSede()+"%");
+			List<Modalidad> lista = modalidadService.listaPorFiltroJSON(moda);
+			if(CollectionUtils.isEmpty(lista)){
+				salida.put("mensaje", "No existe elementos para la consulta");
+			}else {
+				salida.put("lista", lista);
+				salida.put("mensaje", "Se tiene " + lista.size() + " elementos");
+			}
+		} catch (Exception e) {
+			salida.put("mensaje", "Error : " + e.getMessage());
+		}
+		
 		return ResponseEntity.ok(salida);
 	}
 
